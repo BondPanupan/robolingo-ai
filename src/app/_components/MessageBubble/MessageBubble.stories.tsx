@@ -68,3 +68,25 @@ export const Sending: Story = {
 export const Failed: Story = {
   render: () => <PendingBubble pending={pendingMessages[1]} onRetry={fn()} onDiscard={fn()} />,
 };
+
+const pendingImage = {
+  ...pendingMessages[0],
+  text: "",
+  image: { full: new Blob(), preview: new Blob(), objectUrl: SAMPLE_IMAGE_URL },
+};
+
+/** รูปที่ย่อแล้วขึ้นทันทีระหว่างอัปโหลด */
+export const SendingImage: Story = {
+  render: () => <PendingBubble pending={pendingImage} onRetry={fn()} onDiscard={fn()} />,
+};
+
+/** ส่งรูปไม่ผ่าน — แสดงเหตุผลจาก server (เช่น เปิดเว็บผ่าน http://localhost) */
+export const FailedImage: Story = {
+  render: () => (
+    <PendingBubble
+      pending={{ ...pendingImage, status: "failed", error: "ส่งรูปได้เมื่อเปิดเว็บผ่าน HTTPS สาธารณะเท่านั้น" }}
+      onRetry={fn()}
+      onDiscard={fn()}
+    />
+  ),
+};

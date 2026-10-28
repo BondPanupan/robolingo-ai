@@ -71,15 +71,22 @@ export interface LinkPreview {
 export interface PendingMessage {
   tempId: string;
   lineUserId: string;
+  /** Empty for an image message. */
   text: string;
+  /** Resized files kept for retry; `objectUrl` shows the preview while uploading. */
+  image?: { full: Blob; preview: Blob; objectUrl: string };
   createdAt: string;
   status: "sending" | "failed";
+  /** Server's reason when it failed (e.g. not opened over public HTTPS). */
+  error?: string;
 }
 
 export interface ChatApi {
   getConversations(signal?: AbortSignal): Promise<Conversation[]>;
   getMessages(userId: string, signal?: AbortSignal): Promise<Message[]>;
   sendMessage(userId: string, text: string): Promise<Message>;
+  /** `image`/`preview` are already resized JPEGs (see lib/resize-image.ts). */
+  sendImage(userId: string, image: Blob, preview: Blob): Promise<Message>;
   markAsRead(userId: string): Promise<void>;
   getLinkPreview(url: string, signal?: AbortSignal): Promise<LinkPreview>;
 }
@@ -98,7 +105,8 @@ async function request<T>(input: string, init?: RequestInit): Promise<T> {
   const res = await fetch(input, {
     ...init,
     cache: "no-store",
-    headers: { "Content-Type": "application/json", ...init?.headers },
+    // FormData: let the browser set multipart/form-data with its boundary
+    headers: init?.body instanceof FormData ? init.headers : { "Content-Type": "application/json", ...init?.headers },
   });
 
   if (!res.ok) {
@@ -139,6 +147,15 @@ export const chatApi: ChatApi = {
       method: "POST",
       body: JSON.stringify(body),
     });
+    return data.message;
+  },
+
+  async sendImage(userId, image, preview) {
+    const form = new FormData();
+    form.set("userId", userId);
+    form.set("image", image, "image.jpg");
+    form.set("preview", preview, "preview.jpg");
+    const data = await request<SendMessageResponse>("/api/messages/image", { method: "POST", body: form });
     return data.message;
   },
 

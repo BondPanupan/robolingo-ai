@@ -119,14 +119,20 @@ export function PendingBubble({ pending, onRetry, onDiscard }: PendingBubbleProp
       createdAt={pending.createdAt}
       status={pending.status}
       footer={
-        <span className={styles.failed}>
-          ส่งไม่สำเร็จ ·{" "}
+        <span className={styles.failed} title={pending.error}>
+          {pending.error && pending.image ? pending.error : "ส่งไม่สำเร็จ"} ·{" "}
           <button onClick={() => onRetry(pending.tempId)}>ส่งอีกครั้ง</button> ·{" "}
           <button onClick={() => onDiscard(pending.tempId)}>ลบ</button>
         </span>
       }
     >
-      {pending.text}
+      {pending.image ? (
+        // รูปที่ย่อแล้ว (object URL ในเบราว์เซอร์) — ขึ้นทันทีระหว่างอัปโหลด
+        // eslint-disable-next-line @next/next/no-img-element
+        <img className={styles.image} src={pending.image.objectUrl} alt={TYPE_LABEL.image} />
+      ) : (
+        pending.text
+      )}
     </BubbleFrame>
   );
 }

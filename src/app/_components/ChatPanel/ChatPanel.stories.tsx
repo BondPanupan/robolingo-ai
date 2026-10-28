@@ -21,6 +21,7 @@ const meta = {
     error: null,
     isLoading: false,
     onSend: fn(),
+    onSendImage: fn(async () => {}),
     onRetrySend: fn(),
     onDiscard: fn(),
     onRetryLoad: fn(),

@@ -129,6 +129,7 @@
 }
 
 .bubble:has(> .imageButton),
+.bubble:has(> .image),
 .bubble:has(> .sticker) {
   padding: 0;
   border: 0;

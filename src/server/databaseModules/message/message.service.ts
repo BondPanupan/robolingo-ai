@@ -61,7 +61,7 @@ export const messageService = {
   },
 
   async createOutbound(input: ICreateOutboundMessage): Promise<MessageRecord> {
-    const doc = await MessageModel.create({ direction: "outbound", type: "text", ...input });
+    const doc = await MessageModel.create({ direction: "outbound", ...input });
     return doc.toObject() as MessageRecord;
   },
 };

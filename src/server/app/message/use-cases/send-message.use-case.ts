@@ -19,7 +19,7 @@ export async function sendMessageUseCase({ userId, text }: SendMessageDto): Prom
   await lineService.pushText(userId, text, randomUUID());
 
   const createdAt = new Date();
-  const message = await messageService.createOutbound({ lineUserId: userId, text, createdAt });
+  const message = await messageService.createOutbound({ lineUserId: userId, type: "text", text, createdAt });
   await contactService.recordActivity(userId, {
     at: createdAt,
     lastMessage: { direction: "outbound", type: "text", text },

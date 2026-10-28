@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { chatApi, type Conversation, type Message, type PendingMessage } from "@/lib/chat-api";
+import { ApiError, chatApi, type Conversation, type Message, type PendingMessage } from "@/lib/chat-api";
+import { resizeImage } from "@/lib/resize-image";
 import { chatHref, openChatPopout, readChatParam, readIsPopout } from "@/lib/chat-url";
 import { useNewMessageSound, useSoundEnabled } from "@/lib/useNotificationSound";
 import { usePolling } from "@/lib/usePolling";
@@ -78,48 +79,77 @@ export function Inbox() {
   }, [selectedId, selectedUnread, mutateConversations]);
 
   const deliver = useCallback(
-    async (tempId: string, userId: string, text: string) => {
+    async (item: PendingMessage) => {
       try {
-        const sent = await chatApi.sendMessage(userId, text);
-        setPending((list) => list.filter((p) => p.tempId !== tempId));
-        if (userId === selectedIdRef.current) {
+        const sent = item.image
+          ? await chatApi.sendImage(item.lineUserId, item.image.full, item.image.preview)
+          : await chatApi.sendMessage(item.lineUserId, item.text);
+        if (item.image) URL.revokeObjectURL(item.image.objectUrl);
+        setPending((list) => list.filter((p) => p.tempId !== item.tempId));
+        if (item.lineUserId === selectedIdRef.current) {
           mutateMessages((list) =>
             list && !list.some((m) => m.id === sent.id) ? [...list, sent] : list,
           );
         }
         refreshConversations();
-      } catch {
+      } catch (err) {
+        const error = err instanceof ApiError ? err.message : undefined;
         setPending((list) =>
-          list.map((p) => (p.tempId === tempId ? { ...p, status: "failed" } : p)),
+          list.map((p) => (p.tempId === item.tempId ? { ...p, status: "failed", error } : p)),
         );
       }
     },
     [mutateMessages, refreshConversations],
   );
 
-  const send = (text: string) => {
+  // ส่งทีละรายการตามลำดับที่กด — รูปอัปโหลดนานกว่าข้อความ ถ้ายิงพร้อมกันข้อความจะถึง LINE ก่อนรูปที่ส่งก่อนหน้า
+  // deliver จับ error เองทุกกรณี คิวจึงไม่หยุดเมื่อรายการหนึ่งล้มเหลว
+  const sendQueueRef = useRef<Promise<void>>(Promise.resolve());
+  const deliverInOrder = useCallback(
+    (item: PendingMessage) => {
+      sendQueueRef.current = sendQueueRef.current.then(() => deliver(item));
+    },
+    [deliver],
+  );
+
+  const enqueue = (fields: Pick<PendingMessage, "text" | "image">) => {
     if (!selectedId) return;
     tempCounter += 1;
     const item: PendingMessage = {
       tempId: `temp-${tempCounter}`,
       lineUserId: selectedId,
-      text,
       createdAt: new Date().toISOString(),
       status: "sending",
+      ...fields,
     };
     setPending((list) => [...list, item]);
-    void deliver(item.tempId, item.lineUserId, item.text);
+    deliverInOrder(item);
+  };
+
+  const send = (text: string) => enqueue({ text });
+
+  /** ย่อรูปก่อนแล้วค่อยขึ้น bubble — เปิดไฟล์ไม่ได้ให้ Composer แจ้งแอดมิน (throw ต่อ) */
+  const sendImage = async (file: File) => {
+    const { image, preview } = await resizeImage(file);
+    enqueue({ text: "", image: { full: image, preview, objectUrl: URL.createObjectURL(preview) } });
   };
 
   const retrySend = (tempId: string) => {
     const item = pending.find((p) => p.tempId === tempId);
     if (!item) return;
-    setPending((list) => list.map((p) => (p.tempId === tempId ? { ...p, status: "sending" } : p)));
-    void deliver(item.tempId, item.lineUserId, item.text);
+    setPending((list) =>
+      list.map((p) => (p.tempId === tempId ? { ...p, status: "sending", error: undefined } : p)),
+    );
+    deliverInOrder(item);
   };
 
   const discard = (tempId: string) =>
-    setPending((list) => list.filter((p) => p.tempId !== tempId));
+    setPending((list) =>
+      list.filter((p) => {
+        if (p.tempId === tempId && p.image) URL.revokeObjectURL(p.image.objectUrl);
+        return p.tempId !== tempId;
+      }),
+    );
 
   const counts = {
     all: conversations.data?.length ?? 0,
@@ -133,6 +163,7 @@ export function Inbox() {
     error: messages.error,
     isLoading: messages.isLoading,
     onSend: send,
+    onSendImage: sendImage,
     onRetrySend: retrySend,
     onDiscard: discard,
     onRetryLoad: messages.refresh,

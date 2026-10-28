@@ -32,6 +32,14 @@ async function lineFetch(url: string, init?: RequestInit): Promise<Response> {
   return res;
 }
 
+async function push(userId: string, message: Record<string, string>, retryKey: string): Promise<void> {
+  await lineFetch(`${API_BASE}/message/push`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Line-Retry-Key": retryKey },
+    body: JSON.stringify({ to: userId, messages: [message] }),
+  });
+}
+
 export const lineService = {
   async getProfile(userId: string): Promise<ILineProfile> {
     const res = await lineFetch(`${API_BASE}/profile/${encodeURIComponent(userId)}`);
@@ -40,11 +48,12 @@ export const lineService = {
 
   /** retryKey กันส่งซ้ำถ้า request เดิมถูกยิงอีกรอบ */
   async pushText(userId: string, text: string, retryKey: string): Promise<void> {
-    await lineFetch(`${API_BASE}/message/push`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Line-Retry-Key": retryKey },
-      body: JSON.stringify({ to: userId, messages: [{ type: "text", text }] }),
-    });
+    await push(userId, { type: "text", text }, retryKey);
+  },
+
+  /** URL ทั้งสองต้องเป็น https ที่เซิร์ฟเวอร์ LINE เข้าถึงได้ — LINE ดึงไฟล์ตอนลูกค้าเปิดดู ไม่ใช่ตอน push */
+  async pushImage(userId: string, originalContentUrl: string, previewImageUrl: string, retryKey: string): Promise<void> {
+    await push(userId, { type: "image", originalContentUrl, previewImageUrl }, retryKey);
   },
 
   /**

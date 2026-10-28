@@ -21,8 +21,7 @@ export interface ICreateInboundMessage extends IMessageContent {
   createdAt: Date;
 }
 
-export interface ICreateOutboundMessage {
+export interface ICreateOutboundMessage extends IMessageContent {
   lineUserId: string;
-  text: string;
   createdAt: Date;
 }

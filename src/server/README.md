@@ -9,14 +9,17 @@ src/app/api/                      # controller (Next route handler)
 ├── conversations/route.ts
 ├── conversations/[id]/read/route.ts
 ├── messages/route.ts
-└── messages/[id]/content/route.ts
+├── messages/[id]/content/route.ts
+├── messages/image/route.ts       # แอดมินส่งรูป (multipart)
+├── media/[id]/(preview/)route.ts # ไฟล์รูปที่แอดมินส่ง — สาธารณะ ให้ LINE ดึงได้ (ไม่อยู่หลัง Basic Auth)
+└── link-preview/route.ts         # Open Graph ของลิงก์ในข้อความ
 
 src/server/
 ├── app/<feature>/                # business logic แยกตาม feature (≈ booking-engine-backend/src/app)
 │   ├── use-cases/*.use-case.ts   #   1 ไฟล์ = 1 endpoint/งาน
 │   ├── dto/*.dto.ts              #   ตรวจ/แปลง body ของ request
 │   └── lib/                      #   helper ของ feature นั้น เช่น to-*-view.ts (document → response)
-│       conversation/  message/  line-webhook/
+│       conversation/  message/  line-webhook/  media/  link-preview/
 ├── databaseModules/<entity>/     # query ต่อ collection — ไม่มี business logic
 │   ├── <entity>.service.ts
 │   └── interfaces/<entity>.interface.ts
@@ -27,7 +30,7 @@ src/server/
 │   ├── line-signature.ts (+ .spec.ts)
 │   └── interfaces/line-webhook.interface.ts
 ├── auth/basic-auth.ts            # Basic Auth ของหน้าแอดมิน (ใช้ใน src/proxy.ts)
-└── common/                       # HttpException, toErrorResponse, ตรวจ LINE userId
+└── common/                       # HttpException, toErrorResponse, ตรวจ LINE userId, public-base-url, sniff-image-type
 ```
 
 ## ทิศทางการ import
