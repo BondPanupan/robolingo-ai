@@ -17,8 +17,22 @@ src/components/
 ui/Avatar/
 ├── Avatar.tsx          # ตัว component
 ├── Avatar.module.css   # style (CSS Modules)
+├── Avatar.stories.tsx  # Storybook stories (colocate กับ component)
 └── index.ts            # re-export เพื่อ import สั้น ๆ เช่น "@/components/ui/Avatar"
 ```
+
+## Storybook
+
+```bash
+npm run storybook        # dev ที่ http://localhost:6006
+npm run build-storybook  # build static ไปที่ storybook-static/
+```
+
+- story อยู่ข้าง component เสมอ (`Name.stories.tsx`) ทั้งใน `components/` และ `app/_components/`
+- ข้อมูลตัวอย่างใช้ร่วมกันจาก `src/stories/fixtures.ts`
+- `Inbox (full page)` ต่อกับ backend จำลอง (`NEXT_PUBLIC_MOCK_API=1` ตั้งใน `.storybook/main.ts`)
+- ทดสอบ interaction ด้วย `play` (ดู `Composer.stories.tsx`) — พิมพ์ข้อความใน textarea ให้ใช้ `fireEvent.change`
+  เพราะ `userEvent.type` ไม่อัปเดต state ของ React 19.3 controlled input ในโปรเจกต์นี้
 
 - Import ผ่าน barrel เสมอ: `import { Avatar } from "@/components/ui/Avatar";`
 - component ที่ผูกกับหน้าใดหน้าหนึ่งให้ colocate ไว้ใต้ route นั้นแทน เช่น `app/_components/` ของหน้า Inbox (`/`)

@@ -44,3 +44,6 @@ next-env.d.ts
 *.pdf
 line-webchat-requirements.md
 note.md
+# storybook
+/storybook-static
+*storybook.log
