@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { fn } from "storybook/test";
-import { messages, minutesAgo, pendingMessages, SAMPLE_STICKER_URL } from "@/stories/fixtures";
+import { expect, fn, userEvent, waitFor, within } from "storybook/test";
+import { messages, minutesAgo, pendingMessages, SAMPLE_IMAGE_URL, SAMPLE_STICKER_URL } from "@/stories/fixtures";
 import { MessageBubble, PendingBubble } from "./MessageBubble";
 
 const meta = {
@@ -32,6 +32,20 @@ export const Multiline: Story = {
 /** รูปที่ backend ยังไม่ได้เก็บ contentUrl → placeholder */
 export const ImagePlaceholder: Story = {
   args: { message: messages[2] },
+};
+
+/** คลิกรูป → Modal Box รูปใหญ่, ปุ่ม "ปิด" ปิด (Esc ใช้ได้กับคีย์บอร์ดจริง แต่ปุ่มจำลองของ user-event ไม่ทำให้ <dialog> ปิด) */
+export const ImageOpensModal: Story = {
+  args: { message: { ...messages[2], contentUrl: SAMPLE_IMAGE_URL } },
+  play: async ({ canvasElement }) => {
+    const page = within(canvasElement.ownerDocument.body);
+    await userEvent.click(page.getByRole("button", { name: "ดูรูปขนาดใหญ่" }));
+    const dialog = await page.findByRole("dialog", { name: "รูปภาพ" });
+    await expect(dialog).toHaveAttribute("open");
+    await expect(within(dialog).getByRole("button", { name: "ปิดหน้าต่าง" })).toHaveFocus();
+    await userEvent.click(within(dialog).getByRole("button", { name: "ปิด" }));
+    await waitFor(() => expect(page.queryByRole("dialog")).toBeNull());
+  },
 };
 
 export const StickerWithContent: Story = {

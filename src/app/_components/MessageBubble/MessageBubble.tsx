@@ -1,21 +1,44 @@
 "use client";
 
+import { useState } from "react";
+import { ImageModal } from "@/components/ui/ImageModal";
 import type { Message, MessageDirection, PendingMessage } from "@/lib/chat-api";
-import { TYPE_LABEL, formatTime } from "@/lib/chat-format";
+import { TYPE_LABEL, formatDayDivider, formatTime } from "@/lib/chat-format";
 import styles from "./MessageBubble.module.css";
+
+/** รูปในแชต — คลิกแล้วเปิด Modal Box รูปขนาดใหญ่ */
+function ImageContent({ message, src }: { message: Message; src: string }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const sender = message.direction === "inbound" ? "ลูกค้าส่ง" : "คุณส่ง";
+
+  return (
+    <>
+      <button type="button" className={styles.imageButton} onClick={() => setIsOpen(true)} aria-label="ดูรูปขนาดใหญ่">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className={styles.image} src={src} alt={TYPE_LABEL.image} loading="lazy" />
+      </button>
+      {isOpen && (
+        <ImageModal
+          src={src}
+          alt={TYPE_LABEL.image}
+          title="รูปภาพ"
+          subtitle={`${sender} · ${formatDayDivider(message.createdAt)} ${formatTime(message.createdAt)}`}
+          onClose={() => setIsOpen(false)}
+        />
+      )}
+    </>
+  );
+}
 
 function MessageContent({ message }: { message: Message }) {
   if (message.type === "text") return <>{message.text}</>;
 
-  if ((message.type === "image" || message.type === "sticker") && message.contentUrl) {
+  if (message.type === "image" && message.contentUrl) return <ImageContent message={message} src={message.contentUrl} />;
+
+  if (message.type === "sticker" && message.contentUrl) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
-      <img
-        className={message.type === "sticker" ? styles.sticker : styles.image}
-        src={message.contentUrl}
-        alt={TYPE_LABEL[message.type]}
-        loading="lazy"
-      />
+      <img className={styles.sticker} src={message.contentUrl} alt={TYPE_LABEL.sticker} loading="lazy" />
     );
   }
 

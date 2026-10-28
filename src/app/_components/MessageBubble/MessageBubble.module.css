@@ -74,6 +74,24 @@
   border-radius: 6px;
 }
 
+.imageButton {
+  display: block;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  cursor: zoom-in;
+}
+
+.imageButton:hover .image {
+  filter: brightness(0.94);
+}
+
+.imageButton:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
 .sticker {
   display: block;
   width: 120px;
@@ -81,7 +99,7 @@
   object-fit: contain;
 }
 
-.bubble:has(> .image),
+.bubble:has(> .imageButton),
 .bubble:has(> .sticker) {
   padding: 0;
   border: 0;

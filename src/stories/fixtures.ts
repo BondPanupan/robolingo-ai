@@ -19,6 +19,13 @@ export const SAMPLE_STICKER_URL =
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><circle cx="60" cy="60" r="54" fill="#ffd166"/><circle cx="42" cy="50" r="7" fill="#33475b"/><circle cx="78" cy="50" r="7" fill="#33475b"/><path d="M36 74 q24 22 48 0" stroke="#33475b" stroke-width="7" fill="none" stroke-linecap="round"/></svg>',
   );
 
+/** รูปที่ลูกค้าส่งมา (แนวนอน) — ใช้ทดสอบ Modal Box รูปใหญ่; ต้องมี width/height ไม่งั้น <img> จะกว้าง 0 */
+export const SAMPLE_IMAGE_URL =
+  "data:image/svg+xml;utf8," +
+  encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800"><rect width="1200" height="800" fill="#e5f5f8"/><rect x="300" y="180" width="600" height="440" rx="24" fill="#2d3e50"/><circle cx="600" cy="400" r="120" fill="#ff7a59"/><text x="600" y="720" font-family="sans-serif" font-size="48" text-anchor="middle" fill="#33475b">1200 × 800</text></svg>',
+  );
+
 export const conversations: Conversation[] = [
   {
     lineUserId: "U1001",
