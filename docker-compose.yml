@@ -43,8 +43,6 @@ services:
       # ทับค่าใน .env.local — ในเครือข่ายของ compose ฐานข้อมูลอยู่ที่ชื่อ service "mongodb" ไม่ใช่ localhost
       # (scripts/next.mjs ให้ค่าจาก env ของ process ชนะไฟล์ .env เสมอ)
       MONGODB_URI: mongodb://${MONGO_ROOT_USERNAME:-robolingo}:${MONGO_ROOT_PASSWORD:-robolingo-dev}@mongodb:27017/line-webchat?authSource=admin
-      # มี DB จริงแล้ว ใช้ backend จริงแทน mock ในเบราว์เซอร์
-      NEXT_PUBLIC_MOCK_API: "0"
       PORT: "3000"
     volumes:
       - .:/app

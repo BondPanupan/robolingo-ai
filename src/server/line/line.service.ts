@@ -47,6 +47,18 @@ export const lineService = {
     });
   },
 
+  /**
+   * แจ้งว่าแอดมินอ่านแล้ว — ลูกค้าเห็น "อ่านแล้ว" ใต้ข้อความนี้และทุกข้อความก่อนหน้า
+   * ใช้ได้เมื่อเปิด Chat ใน Response settings ของ OA (ถ้าปิด LINE ตั้งเป็นอ่านแล้วเองทันที)
+   */
+  async markAsRead(markAsReadToken: string): Promise<void> {
+    await lineFetch(`${API_BASE}/chat/markAsRead`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ markAsReadToken }),
+    });
+  },
+
   /** ไฟล์รูป/ไฟล์แนบที่ลูกค้าส่งมา — LINE เก็บไว้ชั่วคราวเท่านั้น */
   getMessageContent(lineMessageId: string): Promise<Response> {
     return lineFetch(`${DATA_API_BASE}/message/${encodeURIComponent(lineMessageId)}/content`);

@@ -14,14 +14,20 @@ interface PollingState<T> {
   mutate: (updater: (prev: T | undefined) => T | undefined) => void;
 }
 
+interface PollingOptions {
+  interval?: number;
+  /** Keep polling while the tab is hidden (e.g. so new-message sounds still play). */
+  whileHidden?: boolean;
+}
+
 /**
- * Fetches `fetcher` immediately and then every `interval` ms while the tab is visible.
- * Pass `key = null` to pause. Changing `key` resets data and starts over.
+ * Fetches `fetcher` immediately and then every `interval` ms while the tab is visible
+ * (or always, with `whileHidden`). Pass `key = null` to pause. Changing `key` resets data.
  */
 export function usePolling<T>(
   key: string | null,
   fetcher: (signal: AbortSignal) => Promise<T>,
-  interval = POLL_INTERVAL_MS,
+  { interval = POLL_INTERVAL_MS, whileHidden = false }: PollingOptions = {},
 ): PollingState<T> {
   const [data, setData] = useState<T | undefined>(undefined);
   const [error, setError] = useState<Error | null>(null);
@@ -70,14 +76,14 @@ export function usePolling<T>(
 
     const schedule = () => {
       clearTimeout(timer);
-      if (document.visibilityState === "visible") {
+      if (whileHidden || document.visibilityState === "visible") {
         timer = setTimeout(run, interval);
       }
     };
 
     const onVisibility = () => {
       if (document.visibilityState === "visible") run();
-      else clearTimeout(timer);
+      else if (!whileHidden) clearTimeout(timer);
     };
 
     run();
@@ -89,7 +95,7 @@ export function usePolling<T>(
       controller?.abort();
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [key, interval, tick]);
+  }, [key, interval, whileHidden, tick]);
 
   const refresh = useCallback(() => setTick((t) => t + 1), []);
   const mutate = useCallback(

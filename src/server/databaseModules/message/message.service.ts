@@ -39,6 +39,27 @@ export const messageService = {
     }
   },
 
+  /** ข้อความขาเข้าล่าสุดที่ยังไม่ได้แจ้ง LINE ว่าอ่านแล้ว และมี token ให้แจ้ง */
+  findLatestUnreadInbound(lineUserId: string): Promise<MessageRecord | null> {
+    return MessageModel.findOne({
+      lineUserId,
+      direction: "inbound",
+      readAt: { $exists: false },
+      markAsReadToken: { $exists: true },
+    })
+      .sort({ createdAt: -1, _id: -1 })
+      .lean<MessageRecord>()
+      .exec();
+  },
+
+  /** LINE ตั้งทุกข้อความก่อนหน้า token เป็นอ่านแล้ว — ตั้ง readAt ให้ตรงกันตั้งแต่ข้อความนั้นย้อนลงไป */
+  async markInboundReadUpTo(lineUserId: string, upTo: Date, readAt: Date): Promise<void> {
+    await MessageModel.updateMany(
+      { lineUserId, direction: "inbound", readAt: { $exists: false }, createdAt: { $lte: upTo } },
+      { $set: { readAt } },
+    ).exec();
+  },
+
   async createOutbound(input: ICreateOutboundMessage): Promise<MessageRecord> {
     const doc = await MessageModel.create({ direction: "outbound", type: "text", ...input });
     return doc.toObject() as MessageRecord;

@@ -15,6 +15,10 @@ export const MessageSchema = new Schema(
     lineMessageId: String,
     // ไม่ใส่ฟิลด์นี้เลยสำหรับข้อความขาออก — unique+sparse ข้ามแค่เอกสารที่ไม่มีฟิลด์ ถ้าใส่ null จะชนกันเอง
     webhookEventId: String,
+    // ข้อความขาเข้าเท่านั้น: token จาก webhook ใช้แจ้ง LINE ว่าแอดมินอ่านแล้ว, readAt = เวลาที่แจ้งสำเร็จ
+    // (ลูกค้าเห็น "อ่านแล้ว" ในแอป LINE) — LINE ไม่บอกเวลาลูกค้าอ่านข้อความของเรา ข้อความขาออกจึงไม่มี
+    markAsReadToken: String,
+    readAt: Date,
     // เวลาจาก LINE (event.timestamp) ไม่ใช่เวลาที่ webhook มาถึง
     createdAt: { type: Date, default: Date.now },
   },

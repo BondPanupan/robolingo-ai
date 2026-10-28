@@ -27,6 +27,7 @@ async function saveInboundMessage(event: ILineMessageEvent, lineUserId: string):
     ...content,
     lineMessageId: event.message.id,
     webhookEventId: event.webhookEventId,
+    markAsReadToken: event.message.markAsReadToken,
     createdAt,
   });
   // LINE ส่ง event เดิมซ้ำ (redelivery) — บันทึกไปแล้ว ไม่นับ unread ซ้ำ

@@ -30,7 +30,6 @@ npm run build-storybook  # build static ไปที่ storybook-static/
 
 - story อยู่ข้าง component เสมอ (`Name.stories.tsx`) ทั้งใน `components/` และ `app/_components/`
 - ข้อมูลตัวอย่างใช้ร่วมกันจาก `src/stories/fixtures.ts`
-- `Inbox (full page)` ต่อกับ backend จำลอง (`NEXT_PUBLIC_MOCK_API=1` ตั้งใน `.storybook/main.ts`)
 - ทดสอบ interaction ด้วย `play` (ดู `Composer.stories.tsx`) — พิมพ์ข้อความใน textarea ให้ใช้ `fireEvent.change`
   เพราะ `userEvent.type` ไม่อัปเดต state ของ React 19.3 controlled input ในโปรเจกต์นี้
 
@@ -43,10 +42,8 @@ npm run build-storybook  # build static ไปที่ storybook-static/
 | --- | --- |
 | `app/_components/` | component เฉพาะหน้า Inbox (`Inbox`, `ConversationList`, `ChatPanel`, `Composer`, `MessageBubble`, `InboxViews`, `ContactPanel`) |
 | `lib/chat-api.ts` | type ของ API + client ที่เรียก `/api/*` (`chatApi`) |
-| `lib/mock-chat.ts` | backend จำลองในเบราว์เซอร์ เปิดด้วย `NEXT_PUBLIC_MOCK_API=1` |
 | `lib/chat-format.ts` | format วันที่/ข้อความ preview |
 | `lib/usePolling.ts` | hook ดึงข้อมูลซ้ำเป็นระยะ (realtime แบบ polling) |
-| `lib/config.ts` | ค่า config ฝั่ง client |
 | `app/api/` | controller ของ backend (route handler) — logic อยู่ใน `server/` |
 | `server/` | backend ทั้งหมด (use-case, databaseModules, schemas, LINE, Basic Auth) — ดู [`src/server/README.md`](../server/README.md) |
 | `types/` | เฉพาะไฟล์ `.d.ts` ของ global/third-party |

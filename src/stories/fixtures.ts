@@ -61,13 +61,13 @@ export const conversations: Conversation[] = [
   },
 ];
 
-function msg(id: string, partial: Omit<Message, "id" | "lineUserId" | "contentUrl"> & Partial<Message>): Message {
-  return { id, lineUserId: "U1001", contentUrl: null, ...partial };
+function msg(id: string, partial: Omit<Message, "id" | "lineUserId" | "contentUrl" | "readAt"> & Partial<Message>): Message {
+  return { id, lineUserId: "U1001", contentUrl: null, readAt: null, ...partial };
 }
 
 export const messages: Message[] = [
   msg("m1", { direction: "inbound", type: "text", text: "สวัสดีค่ะ สนใจสินค้าตัวนี้ค่ะ", createdAt: minutesAgo(60 * 26) }),
-  msg("m2", { direction: "outbound", type: "text", text: "สวัสดีครับ ยินดีให้บริการครับ", createdAt: minutesAgo(60 * 26 - 2) }),
+  msg("m2", { direction: "outbound", type: "text", text: "สวัสดีครับ ยินดีให้บริการครับ", createdAt: minutesAgo(60 * 26 - 2), readAt: minutesAgo(20) }),
   msg("m3", { direction: "inbound", type: "image", text: null, createdAt: minutesAgo(20) }),
   msg("m4", { direction: "inbound", type: "sticker", text: null, contentUrl: SAMPLE_STICKER_URL, createdAt: minutesAgo(18) }),
   msg("m5", {

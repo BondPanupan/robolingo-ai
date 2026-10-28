@@ -17,6 +17,7 @@ export interface ICreateInboundMessage extends IMessageContent {
   lineUserId: string;
   lineMessageId: string;
   webhookEventId: string;
+  markAsReadToken?: string;
   createdAt: Date;
 }
 

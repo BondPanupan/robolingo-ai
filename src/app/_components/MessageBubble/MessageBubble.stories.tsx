@@ -25,6 +25,11 @@ export const Outbound: Story = {
   args: { message: messages[1] },
 };
 
+/** ลูกค้ายังไม่ได้ตอบหลังข้อความนี้ — ไม่รู้ว่าอ่านหรือยัง จึงไม่แสดง "อ่านแล้ว" */
+export const OutboundNotYetRead: Story = {
+  args: { message: { ...messages[1], readAt: null } },
+};
+
 export const Multiline: Story = {
   args: { message: messages[4] },
 };

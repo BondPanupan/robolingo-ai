@@ -1,17 +1,25 @@
+/* แบบ LINE: เวลา/สถานะอยู่ข้างกล่องข้อความ ชิดขอบล่าง — ขาเข้าอยู่ขวาของกล่อง ขาออกอยู่ซ้าย */
 .row {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-  max-width: min(70%, 560px);
+  align-items: flex-end;
+  gap: 6px;
+  max-width: min(75%, 600px);
 }
 
 .row[data-direction="outbound"] {
+  flex-direction: row-reverse;
   align-self: flex-end;
+}
+
+/* ข้อความที่ส่งไม่สำเร็จ: ปุ่มส่งอีกครั้ง/ลบยาวเกินจะวางข้างกล่อง — วางใต้กล่องแทน */
+.row[data-status="failed"] {
+  flex-direction: column;
   align-items: flex-end;
+  gap: 4px;
 }
 
 .bubble {
+  min-width: 0;
   padding: 10px 14px;
   border: 1px solid var(--bubble-in-border);
   border-radius: 8px 8px 8px 2px;
@@ -40,9 +48,20 @@
 }
 
 .meta {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
+  align-items: flex-start;
   padding: 0 2px;
   font-size: 11px;
+  line-height: 1.35;
   color: var(--text-subtle);
+  white-space: nowrap;
+}
+
+/* ขาออก: "อ่านแล้ว" ซ้อนเหนือเวลา ชิดขวาเข้าหากล่อง */
+.row[data-direction="outbound"] .meta {
+  align-items: flex-end;
 }
 
 .failed {

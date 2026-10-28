@@ -13,10 +13,6 @@ FROM node:24-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-# NEXT_PUBLIC_* ถูก inline เข้า client bundle ตอน build (ไม่ใช่ runtime) ต้องส่งเป็น build ARG เท่านั้น
-# image production ใช้ backend จริงเสมอ (0) — ตั้ง 1 เฉพาะตอนอยากได้ demo ที่ไม่ต้องมี LINE/DB
-ARG NEXT_PUBLIC_MOCK_API=0
-ENV NEXT_PUBLIC_MOCK_API=$NEXT_PUBLIC_MOCK_API
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 

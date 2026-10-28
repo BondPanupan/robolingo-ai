@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { chatApi, type Conversation, type Message, type PendingMessage } from "@/lib/chat-api";
 import { chatHref, openChatPopout, readChatParam, readIsPopout } from "@/lib/chat-url";
+import { useNewMessageSound, useSoundEnabled } from "@/lib/useNotificationSound";
 import { usePolling } from "@/lib/usePolling";
 import { ChatPanel, ChatPlaceholder } from "../ChatPanel";
 import { ContactPanel } from "../ContactPanel";
@@ -17,10 +18,18 @@ export function Inbox() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [pending, setPending] = useState<PendingMessage[]>([]);
   const [view, setView] = useState<InboxView>("all");
+  const [isPopout, setIsPopout] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useSoundEnabled();
+  // หน้าต่าง pop-out ไม่เล่นเสียง — หน้า Inbox หลักเล่นอยู่แล้ว ไม่งั้นดังซ้ำ
+  const playsSound = soundEnabled && !isPopout;
 
-  const conversations = usePolling<Conversation[]>("conversations", (signal) =>
-    chatApi.getConversations(signal),
+  const conversations = usePolling<Conversation[]>(
+    "conversations",
+    (signal) => chatApi.getConversations(signal),
+    // เปิดเสียงไว้ = ต้องรู้ว่ามีข้อความใหม่แม้อยู่แท็บอื่น
+    { whileHidden: playsSound },
   );
+  useNewMessageSound(conversations.data, playsSound);
   const messages = usePolling<Message[]>(selectedId, (signal) =>
     chatApi.getMessages(selectedId!, signal),
   );
@@ -31,7 +40,6 @@ export function Inbox() {
 
   // The URL owns the selection so a chat can be opened in its own tab. Read it after
   // mount (the page is prerendered without search params) and on back/forward.
-  const [isPopout, setIsPopout] = useState(false);
   useEffect(() => {
     const sync = () => setSelectedId(readChatParam());
     sync();
@@ -141,7 +149,7 @@ export function Inbox() {
 
   return (
     <div className={styles.app}>
-      <TopBar online={!conversations.error} />
+      <TopBar online={!conversations.error} soundEnabled={soundEnabled} onSoundChange={setSoundEnabled} />
       <div className={styles.inbox} data-view={selectedId ? "chat" : "list"}>
         <InboxViews view={view} counts={counts} onChange={setView} />
         <ConversationList

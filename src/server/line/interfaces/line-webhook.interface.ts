@@ -27,7 +27,8 @@ export type ILineMessage =
 
 export interface ILineMessageEvent extends ILineEventBase {
   type: "message";
-  message: ILineMessage;
+  // markAsReadToken: ส่งกลับไปที่ /v2/bot/chat/markAsRead ให้ลูกค้าเห็น "อ่านแล้ว" (ไม่มีวันหมดอายุ)
+  message: ILineMessage & { markAsReadToken?: string };
 }
 
 export type ILineWebhookEvent = ILineMessageEvent | ILineEventBase;

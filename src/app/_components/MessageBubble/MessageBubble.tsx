@@ -48,12 +48,14 @@ function MessageContent({ message }: { message: Message }) {
 interface BubbleFrameProps {
   direction: MessageDirection;
   createdAt: string;
+  /** ข้อความขาออก: ลูกค้าอ่านแล้ว (backend อนุมานจากการที่ลูกค้าตอบกลับ) — แสดง "อ่านแล้ว" เหมือน LINE OA Manager */
+  readAt?: string | null;
   status?: PendingMessage["status"];
   children: React.ReactNode;
   footer?: React.ReactNode;
 }
 
-function BubbleFrame({ direction, createdAt, status, children, footer }: BubbleFrameProps) {
+function BubbleFrame({ direction, createdAt, readAt, status, children, footer }: BubbleFrameProps) {
   return (
     <div className={styles.row} data-direction={direction} data-status={status}>
       <div className={styles.bubble}>{children}</div>
@@ -63,7 +65,12 @@ function BubbleFrame({ direction, createdAt, status, children, footer }: BubbleF
         ) : status === "failed" ? (
           footer
         ) : (
-          <time dateTime={createdAt}>{formatTime(createdAt)}</time>
+          <>
+            {direction === "outbound" && readAt && (
+              <span title={`ลูกค้าเปิดอ่านแล้ว (ตอบกลับเมื่อ ${formatTime(readAt)})`}>อ่านแล้ว</span>
+            )}
+            <time dateTime={createdAt}>{formatTime(createdAt)}</time>
+          </>
         )}
       </div>
     </div>
@@ -72,7 +79,7 @@ function BubbleFrame({ direction, createdAt, status, children, footer }: BubbleF
 
 export function MessageBubble({ message }: { message: Message }) {
   return (
-    <BubbleFrame direction={message.direction} createdAt={message.createdAt}>
+    <BubbleFrame direction={message.direction} createdAt={message.createdAt} readAt={message.readAt}>
       <MessageContent message={message} />
     </BubbleFrame>
   );

@@ -1,9 +1,6 @@
 // เรียก API ของ webchat (GET/POST /api/messages, GET /api/conversations, POST /api/conversations/:id/read)
 // และเป็นที่รวม type ของ response — วันที่ส่งมาเป็น ISO string
 
-import { USE_MOCK_API } from "./config";
-import { mockChatApi } from "./mock-chat";
-
 export type MessageDirection = "inbound" | "outbound";
 
 export type MessageType = "text" | "image" | "sticker" | "file" | "other";
@@ -17,6 +14,12 @@ export interface Message {
   /** Image/sticker URL when the backend has stored the content. */
   contentUrl: string | null;
   createdAt: string;
+  /**
+   * Outbound only: when the customer is known to have read it. LINE has no read receipts for OA
+   * messages, so the backend infers it — a customer who replies after a message has opened the chat.
+   * null = not known yet (the customer may have read it without replying). Always null for inbound.
+   */
+  readAt: string | null;
 }
 
 export interface LastMessage {
@@ -104,7 +107,8 @@ async function request<T>(input: string, init?: RequestInit): Promise<T> {
   return (await res.json()) as T;
 }
 
-const httpChatApi: ChatApi = {
+/** ใช้ตัวนี้ทั่วแอป */
+export const chatApi: ChatApi = {
   async getConversations(signal) {
     const data = await request<ConversationsResponse>("/api/conversations", { signal });
     return data.conversations;
@@ -133,6 +137,3 @@ const httpChatApi: ChatApi = {
     });
   },
 };
-
-/** ใช้ตัวนี้ทั่วแอป — สลับเป็น mock เมื่อตั้ง NEXT_PUBLIC_MOCK_API=1 */
-export const chatApi: ChatApi = USE_MOCK_API ? mockChatApi : httpChatApi;
