@@ -4,6 +4,7 @@ import { Fragment, useLayoutEffect, useRef } from "react";
 import type { Conversation, Message, PendingMessage } from "@/lib/chat-api";
 import { dayKey, formatDayDivider } from "@/lib/chat-format";
 import { Avatar } from "@/components/ui/Avatar";
+import { PopoutIcon } from "@/components/ui/PopoutIcon";
 import { Composer } from "../Composer";
 import { MessageBubble, PendingBubble } from "../MessageBubble";
 import styles from "./ChatPanel.module.css";
@@ -20,7 +21,10 @@ interface ChatPanelProps {
   onRetrySend: (tempId: string) => void;
   onDiscard: (tempId: string) => void;
   onRetryLoad: () => void;
-  onBack: () => void;
+  /** Omitted in the pop-out window, which has no list to go back to. */
+  onBack?: () => void;
+  /** Omitted in the pop-out window itself. */
+  onPopout?: () => void;
 }
 
 export function ChatPanel({
@@ -34,6 +38,7 @@ export function ChatPanel({
   onDiscard,
   onRetryLoad,
   onBack,
+  onPopout,
 }: ChatPanelProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const stickToBottom = useRef(true);
@@ -58,9 +63,11 @@ export function ChatPanel({
   return (
     <section className={styles.panel} aria-label="ห้องแชท">
       <header className={styles.header}>
-        <button className={styles.back} onClick={onBack} aria-label="กลับไปรายการแชท">
-          ‹
-        </button>
+        {onBack && (
+          <button className={styles.back} onClick={onBack} aria-label="กลับไปรายการแชท">
+            ‹
+          </button>
+        )}
         {conversation && (
           <>
             <Avatar name={conversation.displayName} src={conversation.pictureUrl} size={36} />
@@ -71,6 +78,16 @@ export function ChatPanel({
               </span>
             </div>
           </>
+        )}
+        {onPopout && (
+          <button
+            className={styles.popout}
+            onClick={onPopout}
+            title="เปิดในหน้าต่างแยก"
+            aria-label="เปิดแชทนี้ในหน้าต่างแยก"
+          >
+            <PopoutIcon />
+          </button>
         )}
       </header>
 

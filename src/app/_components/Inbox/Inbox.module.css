@@ -5,6 +5,12 @@
   overflow: hidden;
 }
 
+.popout {
+  display: grid;
+  height: 100dvh;
+  overflow: hidden;
+}
+
 /* views | conversation list | thread | contact details */
 .inbox {
   display: grid;

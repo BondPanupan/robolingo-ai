@@ -84,8 +84,41 @@
   list-style: none;
 }
 
+.entry {
+  position: relative;
+}
+
+/* ↗ pop-out button: sits over the timestamp, shown on row hover or keyboard focus. */
+.popout {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  background: var(--surface);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+
+.entry:hover .popout,
+.popout:focus-visible {
+  opacity: 1;
+}
+
+.popout:hover {
+  border-color: var(--highlight);
+  color: var(--highlight);
+}
+
 .item {
   display: flex;
+  user-select: none;
   align-items: flex-start;
   gap: 12px;
   width: 100%;

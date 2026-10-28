@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { chatApi, type Conversation, type Message, type PendingMessage } from "@/lib/chat-api";
-import { chatHref, readChatParam } from "@/lib/chat-url";
+import { chatHref, openChatPopout, readChatParam, readIsPopout } from "@/lib/chat-url";
 import { usePolling } from "@/lib/usePolling";
 import { ChatPanel, ChatPlaceholder } from "../ChatPanel";
 import { ContactPanel } from "../ContactPanel";
@@ -31,9 +31,11 @@ export function Inbox() {
 
   // The URL owns the selection so a chat can be opened in its own tab. Read it after
   // mount (the page is prerendered without search params) and on back/forward.
+  const [isPopout, setIsPopout] = useState(false);
   useEffect(() => {
     const sync = () => setSelectedId(readChatParam());
     sync();
+    setIsPopout(readIsPopout());
     window.addEventListener("popstate", sync);
     return () => window.removeEventListener("popstate", sync);
   }, []);
@@ -116,6 +118,27 @@ export function Inbox() {
     unread: conversations.data?.filter((c) => c.unreadCount > 0).length ?? 0,
   };
 
+  const chatPanelProps = {
+    conversation: selected,
+    messages: messages.data,
+    pending: pending.filter((p) => p.lineUserId === selectedId),
+    error: messages.error,
+    isLoading: messages.isLoading,
+    onSend: send,
+    onRetrySend: retrySend,
+    onDiscard: discard,
+    onRetryLoad: messages.refresh,
+  };
+
+  // Pop-out window: just this contact's thread, no inbox chrome.
+  if (isPopout && selectedId) {
+    return (
+      <div className={styles.popout}>
+        <ChatPanel {...chatPanelProps} />
+      </div>
+    );
+  }
+
   return (
     <div className={styles.app}>
       <TopBar online={!conversations.error} />
@@ -129,20 +152,14 @@ export function Inbox() {
           view={view}
           onViewChange={setView}
           onSelect={selectChat}
+          onPopout={openChatPopout}
           onRetry={conversations.refresh}
         />
         {selectedId ? (
           <ChatPanel
-            conversation={selected}
-            messages={messages.data}
-            pending={pending.filter((p) => p.lineUserId === selectedId)}
-            error={messages.error}
-            isLoading={messages.isLoading}
-            onSend={send}
-            onRetrySend={retrySend}
-            onDiscard={discard}
-            onRetryLoad={messages.refresh}
+            {...chatPanelProps}
             onBack={() => selectChat(null)}
+            onPopout={() => openChatPopout(selectedId)}
           />
         ) : (
           <ChatPlaceholder />

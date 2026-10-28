@@ -29,6 +29,24 @@
   cursor: pointer;
 }
 
+.popout {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin-left: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.popout:hover {
+  border-color: var(--highlight);
+  color: var(--highlight);
+}
+
 .headerText {
   display: flex;
   min-width: 0;

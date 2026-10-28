@@ -5,6 +5,7 @@ import type { Conversation } from "@/lib/chat-api";
 import { formatListStamp, previewText } from "@/lib/chat-format";
 import { chatHref } from "@/lib/chat-url";
 import { Avatar } from "@/components/ui/Avatar";
+import { PopoutIcon } from "@/components/ui/PopoutIcon";
 import { VIEW_LABEL, type InboxView } from "../InboxViews";
 import styles from "./ConversationList.module.css";
 
@@ -16,6 +17,8 @@ interface ConversationListProps {
   view: InboxView;
   onViewChange: (view: InboxView) => void;
   onSelect: (id: string) => void;
+  /** Open the contact in its own pop-out window (double-click or the ↗ button). */
+  onPopout: (id: string) => void;
   onRetry: () => void;
 }
 
@@ -27,6 +30,7 @@ export function ConversationList({
   view,
   onViewChange,
   onSelect,
+  onPopout,
   onRetry,
 }: ConversationListProps) {
   const [query, setQuery] = useState("");
@@ -107,7 +111,7 @@ export function ConversationList({
           </li>
         ) : (
           visible.map((c) => (
-            <li key={c.lineUserId}>
+            <li key={c.lineUserId} className={styles.entry}>
               {/* A real link so right-click → open in new tab focuses this contact. */}
               <a
                 href={chatHref(c.lineUserId)}
@@ -120,6 +124,7 @@ export function ConversationList({
                   e.preventDefault();
                   onSelect(c.lineUserId);
                 }}
+                onDoubleClick={() => onPopout(c.lineUserId)}
               >
                 <Avatar name={c.displayName} src={c.pictureUrl} size={40} />
                 <span className={styles.body}>
@@ -141,6 +146,14 @@ export function ConversationList({
                   </span>
                 </span>
               </a>
+              <button
+                className={styles.popout}
+                onClick={() => onPopout(c.lineUserId)}
+                title="เปิดในหน้าต่างแยก (หรือดับเบิลคลิก)"
+                aria-label={`เปิดแชทกับ ${c.displayName} ในหน้าต่างแยก`}
+              >
+                <PopoutIcon size={14} />
+              </button>
             </li>
           ))
         )}
