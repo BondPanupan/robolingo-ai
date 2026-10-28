@@ -9,6 +9,19 @@
         "dev"
       ],
       "port": 3000
+    },
+    {
+      "name": "robolingo-storybook",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "storybook",
+        "dev",
+        "-p",
+        "6006",
+        "--no-open",
+        "--ci"
+      ],
+      "port": 6006
     }
   ]
 }
