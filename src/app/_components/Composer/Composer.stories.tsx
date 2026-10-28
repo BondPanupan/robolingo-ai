@@ -27,6 +27,10 @@ export const Disabled: Story = {
 
 /** Enter ส่ง (ตัดช่องว่างหัวท้าย), Shift+Enter ไม่ส่ง */
 export const SendsOnEnter: Story = {
+  args: {
+    disabled: true
+  },
+
   play: async ({ args, canvasElement }) => {
     const box = within(canvasElement).getByRole("textbox", { name: "ข้อความ" });
     // user-event's typing doesn't reach React 19.3's controlled textarea here; fireEvent.change does.
@@ -37,5 +41,5 @@ export const SendsOnEnter: Story = {
     await userEvent.keyboard("{Enter}");
     await expect(args.onSend).toHaveBeenCalledWith("สวัสดีครับ\nมีสีดำครับ");
     await expect(box).toHaveValue("");
-  },
+  }
 };
