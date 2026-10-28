@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "node --env-file-if-exists=.env --env-file-if-exists=.env.local node_modules/next/dist/bin/next dev",
+    "dev": "node scripts/next.mjs dev",
     "build": "next build",
-    "start": "node --env-file-if-exists=.env --env-file-if-exists=.env.local node_modules/next/dist/bin/next start",
+    "start": "node scripts/next.mjs start",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
