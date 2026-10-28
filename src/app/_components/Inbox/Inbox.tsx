@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { chatApi, type Conversation, type Message, type PendingMessage } from "@/lib/chat-api";
+import { chatHref, readChatParam } from "@/lib/chat-url";
 import { usePolling } from "@/lib/usePolling";
 import { ChatPanel, ChatPlaceholder } from "../ChatPanel";
 import { ContactPanel } from "../ContactPanel";
@@ -27,6 +28,26 @@ export function Inbox() {
   const selected = conversations.data?.find((c) => c.lineUserId === selectedId);
   const { mutate: mutateConversations, refresh: refreshConversations } = conversations;
   const { mutate: mutateMessages } = messages;
+
+  // The URL owns the selection so a chat can be opened in its own tab. Read it after
+  // mount (the page is prerendered without search params) and on back/forward.
+  useEffect(() => {
+    const sync = () => setSelectedId(readChatParam());
+    sync();
+    window.addEventListener("popstate", sync);
+    return () => window.removeEventListener("popstate", sync);
+  }, []);
+
+  const selectChat = useCallback((id: string | null) => {
+    setSelectedId(id);
+    if (readChatParam() !== id) window.history.pushState(null, "", chatHref(id));
+  }, []);
+
+  // Name the tab after the contact so several focused chats are easy to tell apart.
+  const selectedName = selected?.displayName;
+  useEffect(() => {
+    document.title = selectedName ? `${selectedName} · LINE OA Webchat` : "LINE OA Webchat";
+  }, [selectedName]);
 
   // Sends resolve after the admin may have switched chats; read the latest selection.
   const selectedIdRef = useRef(selectedId);
@@ -107,7 +128,7 @@ export function Inbox() {
           selectedId={selectedId}
           view={view}
           onViewChange={setView}
-          onSelect={setSelectedId}
+          onSelect={selectChat}
           onRetry={conversations.refresh}
         />
         {selectedId ? (
@@ -121,7 +142,7 @@ export function Inbox() {
             onRetrySend={retrySend}
             onDiscard={discard}
             onRetryLoad={messages.refresh}
-            onBack={() => setSelectedId(null)}
+            onBack={() => selectChat(null)}
           />
         ) : (
           <ChatPlaceholder />

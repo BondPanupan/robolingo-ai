@@ -3,6 +3,7 @@
 import { useDeferredValue, useState } from "react";
 import type { Conversation } from "@/lib/chat-api";
 import { formatListStamp, previewText } from "@/lib/chat-format";
+import { chatHref } from "@/lib/chat-url";
 import { Avatar } from "@/components/ui/Avatar";
 import { VIEW_LABEL, type InboxView } from "../InboxViews";
 import styles from "./ConversationList.module.css";
@@ -107,11 +108,18 @@ export function ConversationList({
         ) : (
           visible.map((c) => (
             <li key={c.lineUserId}>
-              <button
+              {/* A real link so right-click → open in new tab focuses this contact. */}
+              <a
+                href={chatHref(c.lineUserId)}
                 className={styles.item}
-                aria-current={c.lineUserId === selectedId}
+                aria-current={c.lineUserId === selectedId ? "page" : undefined}
                 data-unread={c.unreadCount > 0 || undefined}
-                onClick={() => onSelect(c.lineUserId)}
+                onClick={(e) => {
+                  // Let the browser handle new-tab/window gestures; plain clicks switch in place.
+                  if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+                  e.preventDefault();
+                  onSelect(c.lineUserId);
+                }}
               >
                 <Avatar name={c.displayName} src={c.pictureUrl} size={40} />
                 <span className={styles.body}>
@@ -132,7 +140,7 @@ export function ConversationList({
                     )}
                   </span>
                 </span>
-              </button>
+              </a>
             </li>
           ))
         )}

@@ -103,7 +103,7 @@
   background: var(--surface-muted);
 }
 
-.item[aria-current="true"] {
+.item[aria-current="page"] {
   border-left-color: var(--highlight);
   background: var(--highlight-soft);
 }
