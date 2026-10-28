@@ -28,8 +28,8 @@ mongodb://robolingo:robolingo-dev@localhost:27017/line-webchat?authSource=admin
 ```
 
 ```bash
-docker compose up --build                   # dev: MongoDB + Next (hot reload) → http://localhost:3000
-WEB_PORT=3200 docker compose up             # ถ้าพอร์ต 3000 ไม่ว่าง
+docker compose up --build                   # dev: MongoDB + Next (hot reload) → http://localhost
+WEB_PORT=3000 docker compose up             # ถ้าพอร์ต 80 ไม่ว่าง
 docker compose --profile tunnel up          # + Cloudflare quick tunnel ให้ LINE ส่ง webhook เข้ามาได้
 docker compose logs tunnel | grep trycloudflare   # → Webhook URL = <URL ที่ได้>/api/line/webhook
 docker compose down                         # หยุด (เพิ่ม -v เพื่อลบข้อมูลใน MongoDB)
