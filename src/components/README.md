@@ -1,0 +1,36 @@
+# Component Library
+
+shared components ของโปรเจกต์ (แยกออกจาก `app/` เพื่อไม่ให้ path ใต้ `app/` ถูกตีความเป็น route)
+
+```
+src/components/
+├── ui/       # base UI ที่ generic ไม่ผูกกับ business logic (Avatar, ...)
+├── layout/   # ชิ้นส่วนโครงหน้า (TopBar, ...)
+└── index.ts  # barrel export รวมทุกกลุ่ม
+```
+
+## Convention ต่อ component
+
+แต่ละ component อยู่ในโฟลเดอร์ของตัวเอง ใช้ PascalCase:
+
+```
+ui/Avatar/
+├── Avatar.tsx          # ตัว component
+├── Avatar.module.css   # style (CSS Modules)
+└── index.ts            # re-export เพื่อ import สั้น ๆ เช่น "@/components/ui/Avatar"
+```
+
+- Import ผ่าน barrel เสมอ: `import { Avatar } from "@/components/ui/Avatar";`
+- component ที่ผูกกับหน้าใดหน้าหนึ่งให้ colocate ไว้ใต้ route นั้นแทน เช่น `app/_components/` ของหน้า Inbox (`/`)
+
+## โครงสร้างอื่นใน `src/`
+
+| Path | เก็บอะไร |
+| --- | --- |
+| `app/_components/` | component เฉพาะหน้า Inbox (`Inbox`, `ConversationList`, `ChatPanel`, `Composer`, `MessageBubble`, `InboxViews`, `ContactPanel`) |
+| `lib/chat-api.ts` | type ของ API + client ที่เรียก `/api/*` (`chatApi`) |
+| `lib/mock-chat.ts` | backend จำลองในเบราว์เซอร์ เปิดด้วย `NEXT_PUBLIC_MOCK_API=1` |
+| `lib/chat-format.ts` | format วันที่/ข้อความ preview |
+| `lib/usePolling.ts` | hook ดึงข้อมูลซ้ำเป็นระยะ (realtime แบบ polling) |
+| `lib/config.ts` | ค่า config ฝั่ง client |
+| `types/` | เฉพาะไฟล์ `.d.ts` ของ global/third-party |

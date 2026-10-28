@@ -1,0 +1,45 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+/* views | conversation list | thread | contact details */
+.inbox {
+  display: grid;
+  flex: 1;
+  min-height: 0;
+  grid-template-columns: 220px minmax(280px, 340px) 1fr 300px;
+}
+
+@media (max-width: 1279px) {
+  .inbox {
+    grid-template-columns: 200px minmax(260px, 320px) 1fr;
+  }
+
+  .inbox > :nth-child(4) {
+    display: none;
+  }
+}
+
+@media (max-width: 1023px) {
+  .inbox {
+    grid-template-columns: minmax(260px, 320px) 1fr;
+  }
+
+  .inbox > :first-child {
+    display: none;
+  }
+}
+
+/* Phone: one pane at a time — list, or the open chat. */
+@media (max-width: 767px) {
+  .inbox {
+    grid-template-columns: 1fr;
+  }
+
+  .inbox[data-view="chat"] > :nth-child(2) {
+    display: none;
+  }
+}

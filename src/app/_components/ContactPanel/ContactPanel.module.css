@@ -1,0 +1,81 @@
+.panel {
+  min-height: 0;
+  overflow-y: auto;
+  border-left: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 28px 20px 20px;
+  text-align: center;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.name {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.channelTag {
+  padding: 2px 8px;
+  border-radius: var(--radius);
+  font-size: 11px;
+  font-weight: 600;
+  color: #ffffff;
+  background: #06c755;
+}
+
+.card {
+  padding: 16px 20px;
+}
+
+.cardTitle {
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.props {
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.props dt {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-subtle);
+}
+
+.idRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.id {
+  overflow: hidden;
+  font-size: 12px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.copy {
+  flex: none;
+  padding: 0;
+  border: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--link);
+  background: none;
+  cursor: pointer;
+}
+
+.copy:hover {
+  text-decoration: underline;
+}
