@@ -57,6 +57,16 @@ export interface SendMessageResponse {
   message: Message;
 }
 
+// GET /api/link-preview?url= — Open Graph of a link inside a message; 404 when the page has none
+export interface LinkPreview {
+  url: string;
+  title: string | null;
+  description: string | null;
+  /** Absolute http(s) URL on the linked site. */
+  image: string | null;
+  siteName: string | null;
+}
+
 /** Outbound message shown before the server confirms it. */
 export interface PendingMessage {
   tempId: string;
@@ -71,6 +81,7 @@ export interface ChatApi {
   getMessages(userId: string, signal?: AbortSignal): Promise<Message[]>;
   sendMessage(userId: string, text: string): Promise<Message>;
   markAsRead(userId: string): Promise<void>;
+  getLinkPreview(url: string, signal?: AbortSignal): Promise<LinkPreview>;
 }
 
 export class ApiError extends Error {
@@ -135,5 +146,9 @@ export const chatApi: ChatApi = {
     await request<void>(`/api/conversations/${encodeURIComponent(userId)}/read`, {
       method: "POST",
     });
+  },
+
+  getLinkPreview(url, signal) {
+    return request<LinkPreview>(`/api/link-preview?url=${encodeURIComponent(url)}`, { signal });
   },
 };

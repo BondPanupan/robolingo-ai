@@ -4,7 +4,28 @@ import { useState } from "react";
 import { ImageModal } from "@/components/ui/ImageModal";
 import type { Message, MessageDirection, PendingMessage } from "@/lib/chat-api";
 import { TYPE_LABEL, formatDayDivider, formatTime } from "@/lib/chat-format";
+import { firstLink, linkify } from "@/lib/linkify";
+import { LinkPreview } from "../LinkPreview";
 import styles from "./MessageBubble.module.css";
+
+/** ข้อความที่มีลิงก์: ลิงก์คลิกได้ และลิงก์แรกมีการ์ดพรีวิว (og:image) ใต้ข้อความ */
+function TextContent({ text }: { text: string }) {
+  const previewUrl = firstLink(text);
+  return (
+    <>
+      {linkify(text).map((part, i) =>
+        part.kind === "link" ? (
+          <a key={i} className={styles.link} href={part.href} target="_blank" rel="noopener noreferrer">
+            {part.text}
+          </a>
+        ) : (
+          part.text
+        ),
+      )}
+      {previewUrl && <LinkPreview url={previewUrl} />}
+    </>
+  );
+}
 
 /** รูปในแชต — คลิกแล้วเปิด Modal Box รูปขนาดใหญ่ */
 function ImageContent({ message, src }: { message: Message; src: string }) {
@@ -31,7 +52,7 @@ function ImageContent({ message, src }: { message: Message; src: string }) {
 }
 
 function MessageContent({ message }: { message: Message }) {
-  if (message.type === "text") return <>{message.text}</>;
+  if (message.type === "text") return <TextContent text={message.text ?? ""} />;
 
   if (message.type === "image" && message.contentUrl) return <ImageContent message={message} src={message.contentUrl} />;
 

@@ -64,6 +64,16 @@
   align-items: flex-end;
 }
 
+.link {
+  color: var(--link);
+  text-decoration: underline;
+}
+
+/* กล่องขาออกพื้นเข้ม: ลิงก์ใช้สีเดียวกับตัวอักษร */
+.row[data-direction="outbound"] .link {
+  color: inherit;
+}
+
 .failed {
   color: var(--danger);
 }
