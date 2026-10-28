@@ -1,0 +1,45 @@
+# Production — Next.js standalone server (Dockerfile), no hot reload, no source bind mount.
+# For local dev, use `docker compose up` (docker-compose.yml + Dockerfile.dev) instead.
+#
+# Usage (on the server):
+#   docker compose -f docker-compose.prod.yml up -d --build
+#
+# Reads ".env" in this directory for both: (1) docker-compose's own ${VAR} substitution below
+# (MONGO_ROOT_*), and (2) env_file: — the actual app secrets fed into the container.
+# Put a reverse proxy with HTTPS (nginx/Caddy/Cloudflare) in front: LINE only calls HTTPS webhooks.
+
+services:
+  mongodb:
+    image: mongo:8.0
+    container_name: robolingo-mongodb-prod
+    restart: unless-stopped
+    command: ["mongod", "--auth"]
+    # ไม่ publish port ออก host — มีแค่ web-prod ในเครือข่ายเดียวกันที่ต่อได้
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      # สร้าง root user ให้เฉพาะตอน volume ว่าง (ครั้งแรก) — เปลี่ยนรหัสทีหลังต้องทำใน mongosh เอง
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:?set MONGO_ROOT_USERNAME in .env}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:?set MONGO_ROOT_PASSWORD in .env}
+
+  # ตั้งชื่อ service ต่างจาก docker-compose.yml (dev) ตั้งใจ — กันชื่อ image ชนกัน
+  web-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: robolingo-web-prod
+    restart: unless-stopped
+    ports:
+      - "${WEB_PROD_PORT:-3000}:3000"
+    env_file:
+      - .env
+    environment:
+      # ทับค่าใน .env — DB อยู่ที่ service "mongodb"; authSource=admin เพราะ root user อยู่ใน db admin
+      MONGODB_URI: mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@mongodb:27017/line-webchat?authSource=admin
+      PORT: "3000"
+      HOSTNAME: 0.0.0.0
+    depends_on:
+      - mongodb
+
+volumes:
+  mongodb_data:

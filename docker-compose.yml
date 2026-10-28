@@ -1,0 +1,66 @@
+# Local dev: MongoDB + web (hot reload via `next dev`), plus an optional public tunnel for the LINE webhook.
+#
+# Usage:
+#   docker compose up                      # mongodb + web → http://localhost:3000
+#   docker compose --profile tunnel up     # + cloudflared: prints https://<random>.trycloudflare.com
+#                                          #   → LINE Console Webhook URL = <that>/api/line/webhook
+#   docker compose down                    # stop (add -v to also wipe the mongo volume)
+#
+# Secrets (LINE token/secret, Basic Auth) come from .env.local, same file `npm run dev` uses.
+
+services:
+  mongodb:
+    image: mongo:8.0
+    container_name: robolingo-mongodb
+    restart: unless-stopped
+    command: ["mongod", "--auth"]
+    ports:
+      # loopback only — เครื่องอื่นในวงแลนเข้าไม่ได้; ต่อจาก host (Compass/mongosh หรือ `npm run dev`) ด้วย
+      # mongodb://<user>:<pass>@localhost:27017/line-webchat?authSource=admin
+      - "127.0.0.1:27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      # root user อยู่ใน db "admin" จึงต้องมี ?authSource=admin ใน URI แม้จะใช้งาน db line-webchat
+      # สร้างให้เฉพาะตอน volume ว่าง (ครั้งแรก) — เปลี่ยนค่าทีหลังต้อง `docker compose down -v` ก่อน
+      # ค่า default ใช้ได้แค่ dev ในเครื่อง; ตั้งเองได้ใน .env หรือ `docker compose --env-file .env.local up`
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:-robolingo}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-robolingo-dev}
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: robolingo-web
+    restart: unless-stopped
+    ports:
+      # พอร์ตฝั่ง host เปลี่ยนได้ถ้า 3000 ไม่ว่าง: WEB_PORT=3200 docker compose up
+      - "${WEB_PORT:-3000}:3000"
+    env_file:
+      - .env.local
+    environment:
+      # ทับค่าใน .env.local — ในเครือข่ายของ compose ฐานข้อมูลอยู่ที่ชื่อ service "mongodb" ไม่ใช่ localhost
+      # (scripts/next.mjs ให้ค่าจาก env ของ process ชนะไฟล์ .env เสมอ)
+      MONGODB_URI: mongodb://${MONGO_ROOT_USERNAME:-robolingo}:${MONGO_ROOT_PASSWORD:-robolingo-dev}@mongodb:27017/line-webchat?authSource=admin
+      # มี DB จริงแล้ว ใช้ backend จริงแทน mock ในเบราว์เซอร์
+      NEXT_PUBLIC_MOCK_API: "0"
+      PORT: "3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - mongodb
+
+  # LINE ส่ง webhook ได้เฉพาะ HTTPS สาธารณะ — quick tunnel ของ Cloudflare ไม่ต้องมีบัญชี แต่ URL เปลี่ยนทุกครั้งที่สตาร์ต
+  # ดู URL: docker compose logs tunnel | grep trycloudflare
+  tunnel:
+    image: cloudflare/cloudflared:2026.10.0
+    container_name: robolingo-tunnel
+    profiles: ["tunnel"]
+    command: tunnel --no-autoupdate --url http://web:3000
+    depends_on:
+      - web
+
+volumes:
+  mongodb_data:

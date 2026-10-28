@@ -1,0 +1,15 @@
+# Dev-only image — hot reload via `next dev`, source is bind-mounted in docker-compose.yml.
+# Not meant for production (see: no multi-stage build, no `next build`/`next start` here).
+# Mirrors booking-engine-frontend/Dockerfile.dev.
+FROM node:24-alpine
+
+WORKDIR /app
+
+COPY package.json package-lock.json* ./
+RUN npm install
+
+COPY . .
+
+EXPOSE 3000
+
+CMD ["npm", "run", "dev"]
