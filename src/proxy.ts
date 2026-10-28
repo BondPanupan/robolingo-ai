@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { getBasicAuthCredentials, isAuthorized } from "@/lib/basic-auth";
+import { getBasicAuthCredentials, isAuthorized } from "@/server/auth/basic-auth";
 
 // ทั้งหน้าแอดมินและ /api ของแอดมินอยู่หลัง Basic Auth — URL เป็น public ใครก็เข้ามาตอบแทนร้านได้ถ้าไม่ล็อก
 export function proxy(request: NextRequest) {

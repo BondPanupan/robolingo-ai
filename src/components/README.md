@@ -47,4 +47,6 @@ npm run build-storybook  # build static ไปที่ storybook-static/
 | `lib/chat-format.ts` | format วันที่/ข้อความ preview |
 | `lib/usePolling.ts` | hook ดึงข้อมูลซ้ำเป็นระยะ (realtime แบบ polling) |
 | `lib/config.ts` | ค่า config ฝั่ง client |
+| `app/api/` | controller ของ backend (route handler) — logic อยู่ใน `server/` |
+| `server/` | backend ทั้งหมด (use-case, databaseModules, schemas, LINE, Basic Auth) — ดู [`src/server/README.md`](../server/README.md) |
 | `types/` | เฉพาะไฟล์ `.d.ts` ของ global/third-party |

@@ -7,9 +7,11 @@
     "build": "next build",
     "start": "node scripts/next.mjs start",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "test": "node --test --experimental-strip-types --no-warnings=ExperimentalWarning \"src/**/*.spec.ts\""
   },
   "dependencies": {
+    "mongoose": "^9.11.2",
     "next": "16.4.3",
     "react": "19.3.0",
     "react-dom": "19.3.0"
