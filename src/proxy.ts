@@ -1,8 +1,13 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { isApplicationKeyValid } from "@/server/auth/application-key";
 import { getBasicAuthCredentials, isAuthorized } from "@/server/auth/basic-auth";
 
 // ทั้งหน้าแอดมินและ /api ของแอดมินอยู่หลัง Basic Auth — URL เป็น public ใครก็เข้ามาตอบแทนร้านได้ถ้าไม่ล็อก
 export function proxy(request: NextRequest) {
+  if (!isApplicationKeyValid()) {
+    return new NextResponse("Application key is not configured", { status: 503 });
+  }
+
   const credentials = getBasicAuthCredentials();
 
   if (!credentials) {
