@@ -10,13 +10,13 @@ describe("parseOpenGraph", () => {
       <meta property="og:title" content="สถานะการจอง &middot; Bistro De L&#39;Aurore">
       <meta content='เข้าสู่ระบบจัดการร้าน &amp; ดูคิว' property='og:description' />
       <meta property=og:image content="/og/cover.png">
-      <meta property="og:site_name" content="Saveurnote">
+      <meta property="og:site_name" content="Example Bistro">
     </head>`;
     assert.deepEqual(parseOpenGraph(html, PAGE), {
       title: "สถานะการจอง · Bistro De L'Aurore",
       description: "เข้าสู่ระบบจัดการร้าน & ดูคิว",
       image: "https://shop.example.com/og/cover.png",
-      siteName: "Saveurnote",
+      siteName: "Example Bistro",
     });
   });
 

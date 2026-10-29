@@ -12,7 +12,7 @@ const meta = {
       title: "สถานะการจอง · Bistro De L'Aurore",
       description: "เข้าสู่ระบบจัดการร้าน ดูคิวและสถานะการจองของคุณได้ที่นี่",
       image: SAMPLE_IMAGE_URL,
-      siteName: "Saveurnote",
+      siteName: "Example Bistro",
     },
   },
   decorators: [

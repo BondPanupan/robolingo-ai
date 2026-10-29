@@ -60,7 +60,7 @@ services:
 networks:
   default:
     name: robolingo-prod_default
-  # network ระหว่าง nginx กับ webchat — สร้างไว้นอก project นี้ (external): docker network create webchat-proxy
+  # network ระหว่าง reverse proxy กับ web-prod — สร้างไว้นอก project นี้ (external): docker network create webchat-proxy
   proxy:
     external: true
     name: ${PROXY_NETWORK:-webchat-proxy}

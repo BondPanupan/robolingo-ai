@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 
-/** hostname ของ PUBLIC_BASE_URL (เช่น ngrok) — undefined ถ้าไม่ได้ตั้งหรือรูปแบบผิด */
+/** hostname ของ PUBLIC_BASE_URL (เช่น โดเมน tunnel) — undefined ถ้าไม่ได้ตั้งหรือรูปแบบผิด */
 function publicHostname(): string | undefined {
   try {
     return process.env.PUBLIC_BASE_URL ? new URL(process.env.PUBLIC_BASE_URL).hostname : undefined;

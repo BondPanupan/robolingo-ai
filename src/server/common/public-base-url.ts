@@ -4,7 +4,7 @@ import { BadRequestException } from "./http-exception";
 
 /**
  * PUBLIC_BASE_URL ก่อน (ตั้งเมื่อเข้าเว็บผ่าน localhost แต่มี tunnel/โดเมนจริง)
- * ไม่ตั้งก็ใช้ origin ที่แอดมินเปิดเว็บอยู่ (Vercel, ngrok ส่ง x-forwarded-* มาให้)
+ * ไม่ตั้งก็ใช้ origin ที่แอดมินเปิดเว็บอยู่ (Vercel, reverse proxy หรือ tunnel ส่ง x-forwarded-* มาให้)
  * @throws BadRequestException ถ้าไม่ใช่ https — LINE จะปฏิเสธรูปอยู่ดี บอกแอดมินให้ชัดก่อนเสียโควตา push
  */
 export function resolvePublicBaseUrl(request: Request): string {
@@ -21,7 +21,7 @@ export function resolvePublicBaseUrl(request: Request): string {
 
   if (!base.startsWith("https://")) {
     throw new BadRequestException(
-      "ส่งรูปได้เมื่อเปิดเว็บผ่าน HTTPS สาธารณะเท่านั้น (เช่น โดเมน Vercel หรือ ngrok) หรือตั้ง PUBLIC_BASE_URL",
+      "ส่งรูปได้เมื่อเปิดเว็บผ่าน HTTPS สาธารณะเท่านั้น (เช่น โดเมนจริงหรือ tunnel) หรือตั้ง PUBLIC_BASE_URL",
     );
   }
   return base.replace(/\/+$/, "");
