@@ -27,8 +27,9 @@ export const config = {
      * ทุก path ยกเว้น:
      * - api/line/webhook: LINE ส่ง user/password ไม่ได้ — route นั้นป้องกันด้วย x-line-signature แทน
      * - api/media/: รูปที่แอดมินส่ง เซิร์ฟเวอร์ LINE ต้องดึงไปแสดงให้ลูกค้า — id เป็น UUID สุ่ม เดาไม่ได้
-     * - _next/static, _next/image, favicon.ico: asset ของ Next
+     * - _next/static, _next/image, favicon.ico, icon.svg, apple-icon.png: asset ของ Next
+     *   (ไอคอนต้องโหลดได้ก่อน login และตอนเพิ่มลงหน้าโฮมของ iPhone ซึ่งไม่ส่งรหัสผ่าน)
      */
-    "/((?!api/line/webhook|api/media/|_next/static|_next/image|favicon.ico).*)",
+    "/((?!api/line/webhook|api/media/|_next/static|_next/image|favicon.ico|icon.svg|apple-icon.png).*)",
   ],
 };

@@ -47,3 +47,7 @@ note.md
 # storybook
 /storybook-static
 *storybook.log
+
+# deploy script ของเครื่อง dev (มีชื่อ server / path) — ไม่ขึ้น repo
+/scripts/deploy.sh
+/DEPLOY.md

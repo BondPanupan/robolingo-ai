@@ -1,12 +1,18 @@
 # Production — Next.js standalone server (Dockerfile), no hot reload, no source bind mount.
 # For local dev, use `docker compose up` (docker-compose.yml + Dockerfile.dev) instead.
 #
-# Usage (on the server):
-#   docker compose -f docker-compose.prod.yml up -d --build
+# Usage:
+#   docker compose -f docker-compose.prod.yml up -d --build      # build บน server จาก source
+#   WEB_IMAGE=robolingo-web:<tag> docker compose -f docker-compose.prod.yml up -d --no-build
+#                                                                # ใช้ image ที่ build มาแล้ว (docker load จากเครื่องอื่น)
 #
 # Reads ".env" in this directory for both: (1) docker-compose's own ${VAR} substitution below
-# (MONGO_ROOT_*), and (2) env_file: — the actual app secrets fed into the container.
-# Put a reverse proxy with HTTPS (nginx/Caddy/Cloudflare) in front: LINE only calls HTTPS webhooks.
+# (MONGO_ROOT_*, WEB_IMAGE, WEB_PROD_PORT, PROXY_NETWORK), and (2) env_file: — the actual app secrets fed into the container.
+# Put a reverse proxy with HTTPS (nginx/Caddy/Cloudflare) in front: LINE only calls HTTPS webhooks and images.
+#
+# Networks:
+#   default (robolingo-prod_default) — web-prod ↔ mongodb เท่านั้น
+#   proxy   (external, PROXY_NETWORK=webchat-proxy) — nginx ↔ web-prod: proxy_pass http://robolingo-web-prod:3000;
 
 services:
   mongodb:
@@ -14,7 +20,9 @@ services:
     container_name: robolingo-mongodb-prod
     restart: unless-stopped
     command: ["mongod", "--auth"]
-    # ไม่ publish port ออก host — มีแค่ web-prod ในเครือข่ายเดียวกันที่ต่อได้
+    # ไม่ publish port ออก host และอยู่แค่ network ภายใน (default) — nginx/โปรเจกต์อื่นบน proxy network มองไม่เห็น DB
+    networks:
+      - default
     volumes:
       - mongodb_data:/data/db
     environment:
@@ -24,13 +32,21 @@ services:
 
   # ตั้งชื่อ service ต่างจาก docker-compose.yml (dev) ตั้งใจ — กันชื่อ image ชนกัน
   web-prod:
+    # image ที่ build มาแล้ว (เช่น build บนเครื่อง dev แล้ว docker load ขึ้น server — up --no-build ใช้ตัวนี้)
+    # ไม่มี image นี้บน server ก็ build จาก Dockerfile ได้ด้วย `up --build`
+    image: ${WEB_IMAGE:-robolingo-web:latest}
     build:
       context: .
       dockerfile: Dockerfile
     container_name: robolingo-web-prod
     restart: unless-stopped
     ports:
-      - "${WEB_PROD_PORT:-3000}:3000"
+      # loopback เท่านั้น ไว้ debug บน server (curl localhost:3030) — ผู้ใช้จริงเข้าผ่าน nginx บน proxy network
+      - "127.0.0.1:${WEB_PROD_PORT:-3030}:3000"
+    networks:
+      - default
+      # nginx (container) เรียกด้วยชื่อ http://robolingo-web-prod:3000 — host.docker.internal ข้าม compose project ไม่ได้
+      - proxy
     env_file:
       - .env
     environment:
@@ -40,6 +56,14 @@ services:
       HOSTNAME: 0.0.0.0
     depends_on:
       - mongodb
+
+networks:
+  default:
+    name: robolingo-prod_default
+  # network ระหว่าง nginx กับ webchat — สร้างไว้นอก project นี้ (external): docker network create webchat-proxy
+  proxy:
+    external: true
+    name: ${PROXY_NETWORK:-webchat-proxy}
 
 volumes:
   mongodb_data:
