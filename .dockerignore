@@ -7,3 +7,4 @@ storybook-static
 # secret อยู่ใน env ตอน runtime (env_file) เท่านั้น ห้าม copy เข้า image
 .env*
 !.env.example
+*.tar.gz

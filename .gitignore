@@ -51,3 +51,6 @@ note.md
 # deploy script ของเครื่อง dev (มีชื่อ server / path) — ไม่ขึ้น repo
 /scripts/deploy.sh
 /DEPLOY.md
+
+# docker image ที่ save ไว้ส่งขึ้น server (DEPLOY.md ข้อ 5)
+*.tar.gz
